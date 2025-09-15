@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل VPN - مخصوص موبایل</title>
+    <style>
+        :root {
+            /* متغیرهای تم روز */
+            --background: linear-gradient(135deg, #e0e7ff, #c3ddff);
+            --container-bg: rgba(255, 255, 255, 0.7);
+            --container-border: rgba(255, 255, 255, 0.2);
+            --card-bg: rgba(255, 255, 255, 0.3);
+            --text-color: #1c2526;
+            --label-color: #5856d6;
+            --button-bg: linear-gradient(135deg, #5856d6, #007aff);
+            --button-hover-bg: linear-gradient(135deg, #4a48b5, #0051cc);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            --loading-color1: #5856d6;
+            --loading-color2: #007aff;
+            --loading-color3: #34c759;
+            --loading-color4: #ff9500;
+            --dialog-bg: rgba(255, 255, 255, 0.9);
+            --help-bg: rgba(255, 255, 255, 0.95);
+            --help-text: #1c2526;
+            --help-accent: #007aff;
+        }
+
+        /* متغیرهای تم شب */
+        [data-theme="dark"] {
+            --background: linear-gradient(135deg, #1c2526, #2c3e50);
+            --container-bg: rgba(0, 0, 0, 0.5);
+            --container-border: rgba(255, 255, 255, 0.1);
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --text-color: #e0e0e0;
+            --label-color: #bb86fc;
+            --button-bg: linear-gradient(135deg, #bb86fc, #6200ea);
+            --button-hover-bg: linear-gradient(135deg, #9b59b6, #4b0082);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --card-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            --loading-color1: #bb86fc;
+            --loading-color2: #6200ea;
+            --loading-color3: #03dac6;
+            --loading-color4: #ff0266;
+            --dialog-bg: rgba(0, 0, 0, 0.7);
+            --help-bg: rgba(0, 0, 0, 0.85);
+            --help-text: #e0e0e0;
+            --help-accent: #bb86fc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 20px;
+            background: var(--container-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-color);
+            transition: transform 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.2);
+        }
+
+        .help-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-color);
+            transition: transform 0.3s ease;
+        }
+
+        .help-btn:hover {
+            transform: scale(1.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .error-message {
+            color: #ff3b30;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .config-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .config-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--container-border);
+        }
+
+        .config-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--card-shadow);
+        }
+
+        .config-card div {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .config-card span {
+            font-size: 16px;
+            color: var(--text-color);
+        }
+
+        .config-card .label {
+            color: var(--label-color);
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            background: var(--button-bg);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            background: var(--button-hover-bg);
+            transform: scale(1.05);
+        }
+
+        /* لودینگ */
+        .loading {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            border: 5px solid transparent;
+            border-top-color: var(--loading-color1);
+            border-right-color: var(--loading-color2);
+            border-bottom-color: var(--loading-color3);
+            border-left-color: var(--loading-color4);
+            border-radius: 50%;
+            animation: spin 1.2s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes spin {
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        /* دیالوگ سفارشی */
+        .dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: var(--dialog-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-color);
+            animation: dialogFadeIn 0.3s ease forwards;
+            z-index: 100;
+        }
+
+        .dialog.success {
+            border: 1px solid #34c759;
+        }
+
+        .dialog.error {
+            border: 1px solid #ff3b30;
+        }
+
+        /* دیالوگ راهنما */
+        .help-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: var(--help-bg);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            max-width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: var(--help-text);
+            animation: dialogFadeIn 0.4s ease forwards;
+            z-index: 100;
+            text-align: right;
+            border: 1px solid var(--help-accent);
+        }
+
+        .help-dialog h2 {
+            color: var(--help-accent);
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .help-dialog ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .help-dialog li {
+            position: relative;
+            padding-right: 30px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            line-height: 1.5;
+            transition: transform 0.2s ease;
+        }
+
+        .help-dialog li:hover {
+            transform: translateX(-5px);
+        }
+
+        .help-dialog li::before {
+            content: '🔹';
+            position: absolute;
+            right: -30px;
+            top: 2px;
+            font-size: 18px;
+        }
+
+        .help-dialog .close-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--button-bg);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 16px;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .help-dialog .close-btn:hover {
+            background: var(--button-hover-bg);
+            transform: scale(1.1);
+        }
+
+        @keyframes dialogFadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        @keyframes dialogFadeOut {
+            from {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .config-card {
+                padding: 20px;
+            }
+
+            .config-card span {
+                font-size: 18px;
+            }
+
+            .copy-btn {
+                padding: 12px 20px;
+                font-size: 16px;
+            }
+
+            .dialog, .help-dialog {
+                font-size: 18px;
+                padding: 30px;
+                max-width: 600px;
+            }
+
+            .help-dialog h2 {
+                font-size: 28px;
+            }
+
+            .help-dialog li {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="theme-toggle" id="theme-toggle" title="تغییر تم">🌙</button>
+        <button class="help-btn" id="help-btn" title="راهنما">❓</button>
+        <h1>پنل VPN - تنظیمات</h1>
+        <div class="loading" id="loading"></div>
+        <div class="error-message" id="error-message"></div>
+        <div class="config-list" id="config-list"></div>
+    </div>
+    <div class="dialog" id="dialog"></div>
+    <div class="help-dialog" id="help-dialog">
+        <button class="close-btn" id="close-help">✕</button>
+        <h2>راهنمای استفاده از پنل VPN</h2>
+        <ul>
+            <li>لیست تنظیمات VPN را در این صفحه مشاهده کنید.</li>
+            <li>روی دکمه "کپی تنظیمات" کلیک کنید تا کانفیگ به کلیپ‌بورد کپی شود.</li>
+            <li>برای استفاده از کانفیگ در اپلیکیشن v2rayNG، مراحل زیر را دنبال کنید:</li>
+        </ul>
+        <h2>اضافه کردن کانفیگ به v2rayNG (اندروید)</h2>
+        <ul>
+            <li>اپلیکیشن v2rayNG را از گوگل پلی یا منابع معتبر دانلود و نصب کنید.</li>
+            <li>از این پنل، کانفیگ مورد نظر را با کلیک روی "کپی تنظیمات" کپی کنید.</li>
+            <li>اپلیکیشن v2rayNG را باز کنید و روی آیکون <strong>+</strong> در بالا کلیک کنید.</li>
+            <li>گزینه <strong>Import config from clipboard</strong> را انتخاب کنید.</li>
+            <li>کانفیگ اضافه شده را در لیست انتخاب کنید و روی دکمه اتصال بزنید.</li>
+        </ul>
+    </div>
+    
+    <div style="display:none" id="sfc7byxx44y1m7kfugu6jhp15h2blhmc3pu"></div><script type="text/javascript" src="https://counter1.optistats.ovh/private/counter.js?c=7byxx44y1m7kfugu6jhp15h2blhmc3pu&down=async" async></script><noscript><a href="https://www.freecounterstat.com" title="web counter"><img src="https://counter1.optistats.ovh/private/freecounterstat.php?c=7byxx44y1m7kfugu6jhp15h2blhmc3pu" border="0" title="web counter" alt="web counter"></a></noscript>
+
+    <script>
+        let data = [];
+        const rawUrl = 'https://raw.githubusercontent.com/Alirezash123/RealApp/main/config';
+
+        // مدیریت تم
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+
+        function setTheme(theme) {
+            body.setAttribute('data-theme', theme);
+            themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+            localStorage.setItem('theme', theme);
+        }
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        setTheme(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            setTheme(currentTheme);
+        });
+
+        // مدیریت دیالوگ راهنما
+        const helpBtn = document.getElementById('help-btn');
+        const helpDialog = document.getElementById('help-dialog');
+        const closeHelp = document.getElementById('close-help');
+
+        helpBtn.addEventListener('click', () => {
+            helpDialog.style.display = 'block';
+        });
+
+        closeHelp.addEventListener('click', () => {
+            helpDialog.style.animation = 'dialogFadeOut 0.4s ease forwards';
+            setTimeout(() => {
+                helpDialog.style.display = 'none';
+                helpDialog.style.animation = '';
+            }, 400);
+        });
+
+        // نمایش پیام خطا
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            hideLoading();
+        }
+
+        // مخفی کردن پیام خطا
+        function hideError() {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.style.display = 'none';
+        }
+
+        // نمایش لودینگ
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('config-list').style.opacity = '0.3';
+        }
+
+        // مخفی کردن لودینگ
+        function hideLoading() {
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('config-list').style.opacity = '1';
+            }, 2000);
+        }
+
+        // نمایش دیالوگ سفارشی
+        function showDialog(message, type = 'success') {
+            const dialog = document.getElementById('dialog');
+            dialog.textContent = message;
+            dialog.className = `dialog ${type}`;
+            dialog.style.display = 'block';
+            setTimeout(() => {
+                dialog.style.animation = 'dialogFadeOut 0.3s ease forwards';
+                setTimeout(() => {
+                    dialog.style.display = 'none';
+                    dialog.style.animation = '';
+                }, 300);
+            }, 2000);
+        }
+
+        // کپی متن به کلیپ‌بورد
+        function copyToClipboard(text) {
+            try {
+                navigator.clipboard.writeText(text).then(() => {
+                    showDialog('تنظیمات به کلیپ‌بورد کپی شد!', 'success');
+                }).catch(err => {
+                    console.error('Error copying to clipboard:', err);
+                    showDialog('خطا در کپی کردن تنظیمات!', 'error');
+                });
+            } catch (err) {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showDialog('تنظیمات به کلیپ‌بورد کپی شد!', 'success');
+            }
+        }
+
+        // دریافت داده‌ها
+        async function fetchData() {
+            showLoading();
+            try {
+                const response = await fetch(rawUrl);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                const text = await response.text();
+                try {
+                    data = JSON.parse(text);
+                    if (!Array.isArray(data)) {
+                        throw new Error('داده دریافتی آرایه نیست!');
+                    }
+                    hideError();
+                    hideLoading();
+                    renderList();
+                } catch (parseError) {
+                    throw new Error('داده دریافتی JSON معتبر نیست: ' + parseError.message);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showError('خطا در دریافت داده‌ها: ' + error.message);
+                hideLoading();
+            }
+        }
+
+        // نمایش داده‌ها در لیست (از جدید به قدیم)
+        function renderList() {
+            const configList = document.getElementById('config-list');
+            configList.innerHTML = '';
+            [...data].reverse().forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'config-card';
+                card.innerHTML = `
+                    <div>
+                        <span class="label">نام:</span>
+                        <span>${item.name || 'بدون نام'}</span>
+                    </div>
+                    <div>
+                        <span class="label">تاریخ:</span>
+                        <span>${item.date || 'بدون تاریخ'}</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('${item.config || ''}')">کپی تنظیمات</button>
+                `;
+                configList.appendChild(card);
+            });
+        }
+
+        // بارگذاری اولیه داده‌ها
+        fetchData();
+    </script>
+</body>
+</html>
